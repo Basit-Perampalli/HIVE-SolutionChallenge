@@ -18,7 +18,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from verification.extraction import process_document
 import google.generativeai as genai
 
-# Configure Google Gemini API
 
 api_key = env.get("google_api_key", "AIzaSyC6JZFbF8lGvLBsIwhvCkqguer9fXSal9k")
 
