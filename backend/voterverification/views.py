@@ -15,14 +15,15 @@ from datetime import datetime
 
 # Import the process_document function from verification app
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from verification.extraction import process_document, Together
+from verification.extraction import process_document
+import google.generativeai as genai
 
-# Initialize Together client
-with open("env.json", "r") as f:
-    env = json.loads(f.read())
-    api_key = env.get("together_api_key", "tgp_v1_WL9h_QM1RnDkIxAEfjdyILH4DGZ0fyMhMHs9qTIfTxc")
+# Configure Google Gemini API
 
-client = Together(api_key=api_key)
+api_key = env.get("google_api_key", "AIzaSyC6JZFbF8lGvLBsIwhvCkqguer9fXSal9k")
+
+os.environ["GOOGLE_API_KEY"] = api_key
+genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
 
 # Create your views here.
 
@@ -232,7 +233,7 @@ def upload_verify_voter_id(request):
         
         try:
             # Process the voter ID card to extract information
-            result = process_document(file_path, "voterid", client)
+            result = process_document(file_path, "voterid")
             
             # Convert result to dict if it's a string
             if isinstance(result, str):
