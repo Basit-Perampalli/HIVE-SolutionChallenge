@@ -41,8 +41,9 @@ def create_voter_details(request):
                 df = pd.read_excel(file_path)
                 voter_count = 0
                 errors = []
-                
+                print(df)
                 for _, row in df.iterrows():
+                    print(row)
                     try:
                         # Parse date using datetime
                         dob_str = str(row['Date of Birth'])
@@ -206,6 +207,7 @@ def get_all_voters(request):
     voter_list = []
     
     for voter in voters:
+        print(voter)
         voter_list.append({
             'id': voter.id,
             'name': voter.name,

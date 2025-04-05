@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import ApplicationForm from "./components/ApplicationForm";
 import "./styles/main.css";
 import "./styles/animations.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -7,11 +6,9 @@ import LoginPage from "./components/AuthPages/LoginPage";
 import SignupPage from "./components/AuthPages/SignupPage";
 import NavBar from "./components/NavBar/NavBar";
 import { ToastContainer } from "react-toastify";
-import AdminDashboard from "./Dashboards/AdminDashboard";
-import BatchUpload from "./components/ApplicationForm/BatchUpload";
-import ImageDataExtractor from "./components/ImageDataExtractor/ImageDataExtractor";
-import VoterIDExtractor from "./components/VoterIDExtractor/VoterIDExtractor";
 import VoterPage from "./components/Voter/VoterPage";
+import MobileNotification from "./components/MobileNotification/MobileNotification";
+import HelpPage from "./components/HelpPage/HelpPage";
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem("authToken"));
@@ -25,7 +22,6 @@ function App() {
       <BrowserRouter>
         {token && <NavBar />}
         <Routes>
-          <Route path="/" element={<ApplicationForm />} />
           <Route
             path="/login"
             element={<LoginPage updateToken={updateToken} />}
@@ -34,11 +30,9 @@ function App() {
             path="/signup"
             element={<SignupPage updateToken={updateToken} />}
           />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/batchprocess" element={<BatchUpload />} />
-          <Route path="/extract" element={<ImageDataExtractor />} />
-          <Route path="/voter-id" element={<VoterIDExtractor />} />
           <Route path="/voter" element={<VoterPage />} />
+          <Route path="/help" element={<HelpPage />} />
+          <Route path="/" element={<MobileNotification />} />
         </Routes>
       </BrowserRouter>
       <ToastContainer

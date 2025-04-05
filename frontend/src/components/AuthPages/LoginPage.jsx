@@ -36,7 +36,7 @@ const LoginPage = () => {
           localStorage.setItem('authToken',data.access)
           localStorage.setItem('refreshToken',data.refresh)
           localStorage.setItem('role',data.role)
-          navigate('/')
+          navigate('/voter')
         }
         else{
           toast.error(data.error)
