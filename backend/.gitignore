@@ -1,0 +1,62 @@
+# Ignore virtual environment
+venv/
+env/
+
+
+env.json
+
+# Byte-compiled / cached files
+__pycache__/
+*.py[cod]
+*$py.class
+**/migrations/
+!**/migrations/__init__.py
+migrations/
+
+# Database files (if using SQLite)
+db.sqlite3
+db.sqlite3-journal
+
+# Secret configuration files (for JWT, environment variables, etc.)
+.env
+*.secret
+config/settings/local.py
+config/settings/production.py
+
+# JWT-related keys and tokens
+jwt_private_key.pem
+jwt_public_key.pem
+*.pem
+
+# Django migrations (if you want to avoid tracking them initially)
+*/migrations/__pycache__/
+*/migrations/*.pyc
+*/migrations/*.pyo
+
+# Logs and local development artifacts
+*.log
+*.pot
+*.mo
+debug.log
+
+# Media and static files (if generated dynamically)
+media/
+staticfiles/
+static/
+uploaded_files/
+
+
+# Ignore IDE/editor-specific files
+.vscode/
+.idea/
+*.iml
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Git-specific files
+.git/
+.gitignore/
+
+env.json
