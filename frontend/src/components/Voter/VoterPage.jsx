@@ -20,12 +20,19 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  DialogContentText,
   Card,
   CardContent,
   IconButton,
   useMediaQuery,
   useTheme,
   styled,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
@@ -34,9 +41,11 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PendingIcon from "@mui/icons-material/Pending";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HowToVoteIcon from "@mui/icons-material/HowToVote";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
 
-const base_url = "https://zx16l13m-8000.inc1.devtunnels.ms";
+const base_url = "http://localhost:8000";
 
 const VisuallyHiddenInput = styled("input")`
   clip: rect(0 0 0 0);
@@ -74,6 +83,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
   borderRadius: theme.spacing(1),
   marginBottom: theme.spacing(2),
+  position: "relative",
 }));
 
 const StatusChip = styled(Chip)(({ status, theme }) => ({
@@ -83,6 +93,17 @@ const StatusChip = styled(Chip)(({ status, theme }) => ({
       : theme.palette.warning.main,
   color: "#fff",
   fontWeight: "bold",
+  "& .MuiChip-icon": {
+    color: "#fff",
+  },
+}));
+
+const DeleteButton = styled(IconButton)(({ theme }) => ({
+  position: "absolute",
+  top: "50%",
+  right: theme.spacing(2),
+  transform: "translateY(-50%)",
+  color: theme.palette.error.main,
 }));
 
 const VoterPage = () => {
@@ -94,11 +115,29 @@ const VoterPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [verificationResult, setVerificationResult] = useState(null);
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
+  const [showAddVoterDialog, setShowAddVoterDialog] = useState(false);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  const [voterToDelete, setVoterToDelete] = useState(null);
+  const [newVoter, setNewVoter] = useState({
+    name: "",
+    father_name: "",
+    voter_id: "",
+    gender: "",
+    dob: "",
+  });
   const webcamRef = useRef(null);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  // Check authentication
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   // Redirect non-mobile users
   useEffect(() => {
@@ -224,6 +263,78 @@ const VoterPage = () => {
     } catch (error) {
       console.error("Error uploading voters:", error);
       toast.error("Failed to upload voters");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle form input change
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewVoter((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Submit new voter
+  const handleAddVoter = async () => {
+    // Validate form
+    if (
+      !newVoter.name ||
+      !newVoter.voter_id ||
+      !newVoter.father_name ||
+      !newVoter.gender ||
+      !newVoter.dob
+    ) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await axios.post(`${base_url}/voter/create/`, newVoter);
+
+      toast.success("Voter added successfully");
+      setShowAddVoterDialog(false);
+      // Reset form
+      setNewVoter({
+        name: "",
+        father_name: "",
+        voter_id: "",
+        gender: "",
+        dob: "",
+      });
+      // Refresh voter list
+      fetchVoters();
+    } catch (error) {
+      console.error("Error adding voter:", error);
+      toast.error(error.response?.data?.error || "Failed to add voter");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete voter
+  const handleDeleteVoter = (voter) => {
+    setVoterToDelete(voter);
+    setShowDeleteConfirmDialog(true);
+  };
+
+  // Confirm deletion
+  const confirmDeleteVoter = async () => {
+    if (!voterToDelete) return;
+
+    try {
+      setLoading(true);
+      await axios.delete(`${base_url}/voter/${voterToDelete.id}/delete/`);
+
+      toast.success(`Voter ${voterToDelete.name} deleted successfully`);
+      setShowDeleteConfirmDialog(false);
+      setVoterToDelete(null);
+
+      // Refresh voter list
+      fetchVoters();
+    } catch (error) {
+      console.error("Error deleting voter:", error);
+      toast.error(error.response?.data?.error || "Failed to delete voter");
     } finally {
       setLoading(false);
     }
@@ -392,6 +503,124 @@ const VoterPage = () => {
     </Box>
   );
 
+  // Render add voter dialog
+  const renderAddVoterDialog = () => {
+    return (
+      <Dialog
+        open={showAddVoterDialog}
+        onClose={() => setShowAddVoterDialog(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Add New Voter</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Name"
+                name="name"
+                value={newVoter.name}
+                onChange={handleInputChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Father's Name"
+                name="father_name"
+                value={newVoter.father_name}
+                onChange={handleInputChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Voter ID"
+                name="voter_id"
+                value={newVoter.voter_id}
+                onChange={handleInputChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth required>
+                <InputLabel>Gender</InputLabel>
+                <Select
+                  name="gender"
+                  value={newVoter.gender}
+                  onChange={handleInputChange}
+                  label="Gender"
+                >
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Date of Birth"
+                name="dob"
+                type="date"
+                value={newVoter.dob}
+                onChange={handleInputChange}
+                InputLabelProps={{ shrink: true }}
+                placeholder="DD-MM-YYYY"
+                helperText="Format: DD-MM-YYYY"
+                required
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowAddVoterDialog(false)}>Cancel</Button>
+          <Button
+            onClick={handleAddVoter}
+            variant="contained"
+            color="primary"
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={24} /> : "Add Voter"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
+  // Render delete confirmation dialog
+  const renderDeleteConfirmDialog = () => {
+    return (
+      <Dialog
+        open={showDeleteConfirmDialog}
+        onClose={() => setShowDeleteConfirmDialog(false)}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete voter "{voterToDelete?.name}" with
+            ID {voterToDelete?.voter_id}? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDeleteConfirmDialog(false)}>
+            Cancel
+          </Button>
+          <Button
+            onClick={confirmDeleteVoter}
+            color="error"
+            variant="contained"
+            disabled={loading}
+          >
+            {loading ? <CircularProgress size={24} /> : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
   // Render voter list
   const renderVoterList = () => (
     <Box sx={{ mt: 2 }}>
@@ -404,21 +633,32 @@ const VoterPage = () => {
         }}
       >
         <Typography variant="h6">Voters List</Typography>
-        <Button
-          component="label"
-          variant="contained"
-          startIcon={<CloudUploadIcon />}
-          size="small"
-          disabled={loading}
-        >
-          Upload Excel
-          <VisuallyHiddenInput
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            onChange={handleFileUpload}
-            ref={fileInputRef}
-          />
-        </Button>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<AddIcon />}
+            size="small"
+            onClick={() => setShowAddVoterDialog(true)}
+          >
+            Add Voter
+          </Button>
+          <Button
+            component="label"
+            variant="contained"
+            startIcon={<CloudUploadIcon />}
+            size="small"
+            disabled={loading}
+          >
+            Upload Excel
+            <VisuallyHiddenInput
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              onChange={handleFileUpload}
+              ref={fileInputRef}
+            />
+          </Button>
+        </Box>
       </Box>
 
       {loading ? (
@@ -427,62 +667,51 @@ const VoterPage = () => {
         </Box>
       ) : voters.length === 0 ? (
         <Typography align="center" color="text.secondary" sx={{ my: 4 }}>
-          No voters found. Upload an Excel file to add voters.
+          No voters found. Upload an Excel file or add voters manually.
         </Typography>
       ) : (
         <List>
           {voters.map((voter) => (
-            <React.Fragment key={voter.id}>
-              <StyledPaper>
-                <ListItem>
-                  <ListItemText
-                    primary={
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Typography variant="subtitle1">
-                          {voter.name}
-                        </Typography>
-                        <StatusChip
-                          label={voter.voting_status}
-                          status={voter.voting_status}
-                          size="small"
-                          icon={
-                            voter.voting_status === "voted" ? (
-                              <CheckCircleIcon />
-                            ) : (
-                              <PendingIcon />
-                            )
-                          }
-                        />
-                      </Box>
+            <StyledPaper key={voter.id}>
+              <Box sx={{ pr: 5 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1,
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: "medium" }}>
+                    {voter.name}
+                  </Typography>
+                  <StatusChip
+                    icon={
+                      voter.voting_status === "voted" ? (
+                        <CheckCircleIcon />
+                      ) : (
+                        <PendingIcon />
+                      )
                     }
-                    secondary={
-                      <>
-                        <Typography
-                          variant="body2"
-                          component="span"
-                          display="block"
-                        >
-                          ID: {voter.voter_id}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          component="span"
-                          display="block"
-                        >
-                          Father: {voter.father_name}
-                        </Typography>
-                      </>
-                    }
+                    label={voter.voting_status}
+                    status={voter.voting_status}
+                    size="medium"
                   />
-                </ListItem>
-              </StyledPaper>
-            </React.Fragment>
+                </Box>
+                <Typography variant="body1" color="text.secondary">
+                  ID: {voter.voter_id}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Father: {voter.father_name}
+                </Typography>
+              </Box>
+              <DeleteButton
+                aria-label="delete"
+                onClick={() => handleDeleteVoter(voter)}
+              >
+                <DeleteIcon />
+              </DeleteButton>
+            </StyledPaper>
           ))}
         </List>
       )}
@@ -516,6 +745,8 @@ const VoterPage = () => {
       {activeTab === 1 && renderVoterList()}
 
       {renderVerificationDialog()}
+      {renderAddVoterDialog()}
+      {renderDeleteConfirmDialog()}
     </Container>
   );
 };

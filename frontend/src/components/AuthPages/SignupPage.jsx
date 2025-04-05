@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-
+const host = "localhost:8000"
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const SignupPage = () => {
     const email = formData.email
     const password = formData.password
     try {
-      const response = await fetch('http://localhost:8000/auth/signup/', {
+      const response = await fetch(`http://${host}/auth/signup/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({email,password}),
@@ -41,7 +41,7 @@ const SignupPage = () => {
         localStorage.setItem('authToken',data.access)
         localStorage.setItem('refreshToken',data.refresh)
         localStorage.setItem('role',data.role)
-        navigate('/')
+        navigate('/voter')
       }
       else{
         toast.error(data.error)

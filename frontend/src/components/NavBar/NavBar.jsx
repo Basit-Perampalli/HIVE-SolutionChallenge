@@ -4,6 +4,7 @@ import profilepic from "../../assets/Logo/drdo_round_logo.jpg";
 import "./NavBar.css";
 import { useMediaQuery, useTheme } from "@mui/material";
 import HowToVoteIcon from "@mui/icons-material/HowToVote";
+import HelpIcon from "@mui/icons-material/Help";
 
 const NavBar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -35,31 +36,16 @@ const NavBar = () => {
     navigate("/login", { replace: true });
   };
 
-  const navigateToApplicationForm = () => {
-    navigate("/");
-  };
-
-  const navigateToBatchProcessing = () => {
-    navigate("/batchprocess");
-  };
-
-  const navigateToExtractor = () => {
-    navigate("/extract");
-  };
-
-  const navigateToVoterID = () => {
-    navigate("/voter-id");
-  };
-
   const navigateToVoterVerification = () => {
     navigate("/voter");
   };
 
-  const isApplicationFormActive = location.pathname === "/";
-  const isBatchProcessingActive = location.pathname === "/batchprocess";
-  const isExtractorActive = location.pathname === "/extract";
-  const isVoterIDActive = location.pathname === "/voter-id";
+  const navigateToHelp = () => {
+    navigate("/help");
+  };
+
   const isVoterVerificationActive = location.pathname === "/voter";
+  const isHelpActive = location.pathname === "/help";
 
   return (
     <nav className="navbar">
@@ -67,36 +53,6 @@ const NavBar = () => {
         <span className="navbar-title">DocLens</span>
       </div>
       <div className="navbar-nav-center">
-        <button
-          className={`nav-button ${
-            isApplicationFormActive ? "nav-button-active" : ""
-          }`}
-          onClick={navigateToApplicationForm}
-        >
-          Application Form
-        </button>
-        <button
-          className={`nav-button ${
-            isBatchProcessingActive ? "nav-button-active" : ""
-          }`}
-          onClick={navigateToBatchProcessing}
-        >
-          Batch Processing
-        </button>
-        <button
-          className={`nav-button ${
-            isExtractorActive ? "nav-button-active" : ""
-          }`}
-          onClick={navigateToExtractor}
-        >
-          Raw Data Extractor
-        </button>
-        <button
-          className={`nav-button ${isVoterIDActive ? "nav-button-active" : ""}`}
-          onClick={navigateToVoterID}
-        >
-          Voter ID
-        </button>
         {isMobile && (
           <button
             className={`nav-button ${
@@ -108,6 +64,13 @@ const NavBar = () => {
             Voter Verification
           </button>
         )}
+        <button
+          className={`nav-button ${isHelpActive ? "nav-button-active" : ""}`}
+          onClick={navigateToHelp}
+        >
+          <HelpIcon sx={{ mr: 0.5 }} />
+          Help
+        </button>
       </div>
       <div className="navbar-links">
         <div className="profile-container" ref={dropdownRef}>
