@@ -26,9 +26,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 SECRET_KEY = "django-insecure-u)(c+#8e@2g%8)3$wc49ke=6#(_*f4j+zqudpk_0y#w&@xl4@^"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['votelens.web.app', 'yourproductionapi.com']
 
 
 # Application definition
@@ -144,7 +144,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # For production, use specific origins instead:
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://votelens.web.app"
+    "https://votelens.web.app",
+    "https://yourfrontendapp.com"
     # Add your production URLs here
 ]
 
