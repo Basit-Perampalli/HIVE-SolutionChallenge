@@ -19,7 +19,7 @@ from verification.extraction import process_document
 import google.generativeai as genai
 
 
-api_key = env.get("google_api_key", "AIzaSyC6JZFbF8lGvLBsIwhvCkqguer9fXSal9k")
+api_key = "AIzaSyC6JZFbF8lGvLBsIwhvCkqguer9fXSal9k"
 
 os.environ["GOOGLE_API_KEY"] = api_key
 genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
