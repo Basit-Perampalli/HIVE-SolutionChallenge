@@ -55,8 +55,6 @@
 
    This will start the backend on the default port (usually 8000). You can access it by navigating to `http://localhost:8000` in your web browser.
 
-
-
 # Frontend Setup
 
 ## Prerequisites
@@ -85,6 +83,4 @@
    npm run dev
    ```
 
-   This will start the frontend on the default port (usually 3000). You can access it by navigating to `http://localhost:5173` in your web browser.
-
-
+   This will start the frontend on the default port 5173. You can access it by navigating to `http://localhost:5173` in your web browser.
