@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
-const host = "localhost:8000"
+const host = "54.91.54.250"
 
 const SignupPage = () => {
   const navigate = useNavigate();
