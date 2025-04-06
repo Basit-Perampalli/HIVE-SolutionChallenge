@@ -43,6 +43,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import HowToVoteIcon from "@mui/icons-material/HowToVote";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import PhotoLibraryIcon from "@mui/icons-material/PhotoLibrary";
 import { toast } from "react-toastify";
 
 const base_url = "http://54.91.54.250";
@@ -118,6 +119,7 @@ const VoterPage = () => {
   const [showAddVoterDialog, setShowAddVoterDialog] = useState(false);
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
   const [voterToDelete, setVoterToDelete] = useState(null);
+  const [cameraError, setCameraError] = useState(false);
   const [newVoter, setNewVoter] = useState({
     name: "",
     father_name: "",
@@ -127,6 +129,7 @@ const VoterPage = () => {
   });
   const webcamRef = useRef(null);
   const fileInputRef = useRef(null);
+  const imageUploadRef = useRef(null);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -332,6 +335,35 @@ const VoterPage = () => {
     }
   };
 
+  // Handle direct image file upload
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Check file type
+    if (!file.type.match("image.*")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    // Create a preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
+
+    // Save the file for verification
+    setVoterImage(file);
+  };
+
+  // Camera error handler
+  const handleCameraError = (error) => {
+    console.error("Camera error:", error);
+    setCameraError(true);
+    setCameraReady(false);
+  };
+
   // Render verification dialog
   const renderVerificationDialog = () => {
     if (!verificationResult) return null;
@@ -435,40 +467,92 @@ const VoterPage = () => {
     <Box sx={{ mt: 2 }}>
       <StyledPaper elevation={3}>
         <Typography variant="h6" gutterBottom>
-          Capture Voter ID
+          Voter ID Verification
         </Typography>
+
+        {/* Upload button above camera */}
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+          <Button
+            variant="contained"
+            color="secondary"
+            component="label"
+            startIcon={<PhotoLibraryIcon />}
+            size="small"
+          >
+            Upload Image
+            <input
+              ref={imageUploadRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={handleImageUpload}
+            />
+          </Button>
+        </Box>
+
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Position the voter ID card in front of the camera and take a clear
-          photo
+          {cameraError
+            ? "Camera access denied. Please use the upload button above to select an image."
+            : "Position the voter ID card in front of the camera or upload an image"}
         </Typography>
 
         {!imagePreview ? (
+          // Camera view - always show unless there's an error
           <WebcamContainer>
-            <Webcam
-              ref={webcamRef}
-              audio={false}
-              screenshotFormat="image/jpeg"
-              videoConstraints={{
-                facingMode: "environment", // Use back camera on mobile
-              }}
-              onUserMedia={() => setCameraReady(true)}
-              mirrored={false}
-            />
-            <CaptureButton
-              variant="contained"
-              color="primary"
-              onClick={capture}
-              disabled={!isCameraReady}
-              startIcon={<CameraAltIcon />}
-            >
-              Capture
-            </CaptureButton>
+            {!cameraError ? (
+              <Webcam
+                ref={webcamRef}
+                audio={false}
+                screenshotFormat="image/jpeg"
+                videoConstraints={{
+                  facingMode: "environment", // Use back camera on mobile
+                }}
+                onUserMedia={() => setCameraReady(true)}
+                onUserMediaError={handleCameraError}
+                mirrored={false}
+              />
+            ) : (
+              <Box
+                sx={{
+                  height: 300,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: "1px dashed grey",
+                  borderRadius: 1,
+                  flexDirection: "column",
+                  p: 2,
+                }}
+              >
+                <CameraAltIcon
+                  sx={{ fontSize: 50, color: "text.disabled", mb: 2 }}
+                />
+                <Typography color="text.secondary" align="center">
+                  Camera access is not available on this device or permission
+                  was denied. Please use the upload button to select a voter ID
+                  image.
+                </Typography>
+              </Box>
+            )}
+
+            {!cameraError && (
+              <CaptureButton
+                variant="contained"
+                color="primary"
+                onClick={capture}
+                disabled={!isCameraReady}
+                startIcon={<CameraAltIcon />}
+              >
+                Capture
+              </CaptureButton>
+            )}
           </WebcamContainer>
         ) : (
+          // Preview of captured or uploaded image
           <Box sx={{ textAlign: "center" }}>
             <img
               src={imagePreview}
-              alt="Captured"
+              alt="Voter ID"
               style={{
                 maxWidth: "100%",
                 maxHeight: "300px",
@@ -479,7 +563,7 @@ const VoterPage = () => {
               sx={{ mt: 2, display: "flex", justifyContent: "center", gap: 2 }}
             >
               <Button variant="outlined" onClick={resetVerification}>
-                Retake
+                Reset
               </Button>
               <Button
                 variant="contained"
