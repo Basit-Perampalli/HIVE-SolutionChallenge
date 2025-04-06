@@ -132,6 +132,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -141,32 +142,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # For development
 CORS_ALLOW_ALL_ORIGINS = True
 
-# For production, use specific origins instead:
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",
-#     "https://votelens.web.app",
-#     "https://yourfrontendapp.com"
-#     # Add your production URLs here
-# ]
-
-# Additional CORS settings
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-]
