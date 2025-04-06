@@ -144,7 +144,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # For production, use specific origins instead:
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://votelens.web.app/"
+    "https://votelens.web.app"
     # Add your production URLs here
 ]
 
