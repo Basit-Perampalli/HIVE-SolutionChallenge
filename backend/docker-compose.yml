@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  django:
+    build: .
+    container_name: django_backend
+    restart: always
+    expose:
+      - "8000"  # Expose port internally for Nginx
+    volumes:
+      - ./media:/app/media
+      - ./static:/app/static  # Ensure static files are available
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_server
+    restart: always
+    ports:
+      - "80:80"  # Make Nginx accessible from the internet
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./static:/app/static
+      - ./media:/app/media
+    depends_on:
+      - django
